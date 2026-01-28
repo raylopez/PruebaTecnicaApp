@@ -1,0 +1,196 @@
+<div class="container">
+  <h2 class="title">Generador de facturas <button class="btn btn-primary" [disabled]="!itemsSignal().length" type="button" (click)="saveInvoice()">Guardar factura</button></h2>
+
+  @if (company()) {
+    <div class="card my-2">
+      <ul>
+        <li>Empresa: {{ company()?.name }}</li>
+        <li>Telefono: {{ company()?.phone }}</li>
+        <li>Correo: {{ company()?.email }}</li>
+      </ul>
+
+    </div>
+
+    <form class="d-flex flex-row gap-2">
+      <div class="mb-3">
+        <label class="form-label" for="due_date">Fecha</label>
+        <input type="date" id="date" class="form-control" [formField]="invoiceForm.due_date">
+        @let dueDateField = invoiceForm.due_date();
+        @if (dueDateField.touched() && dueDateField.invalid()) {
+          @for (error of dueDateField.errors(); track error) {
+            <span class="text-red">{{ error.message }}</span>
+          }
+        }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="client_id">Cliente</label>
+        <select id="client_id" class="form-select" [formField]="invoiceForm.client_id">
+          <option selected value="">Seleccione una opcion</option>
+          @for (client of company()?.clients; track client) {
+            <option [value]="client.id">{{ client.first_name }} {{ client.last_name }}</option>
+          }
+        </select>
+        @let clientIdField = invoiceForm.client_id();
+        @if (clientIdField.touched() && clientIdField.invalid()) {
+          @for (error of clientIdField.errors(); track error) {
+            <span class="text-red">{{ error.message }}</span>
+          }
+        }
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="type">Tipo de recursos</label>
+          <select id="type" class="form-control" [formField]="invoiceForm.item_type">
+            <option value="" selected>Seleccione una opción</option>
+            @for (typeItem of eItemType | keyvalue; track typeItem) {
+              <option [value]="typeItem.key">{{ typeItem.value }}</option>
+            }
+          </select>
+          @let typeField = invoiceForm.item_type();
+          @if (typeField.touched() && typeField.invalid()) {
+            @for (error of typeField.errors(); track error) {
+              <span class="text-red">{{ error.message }}</span>
+            }
+          }
+      </div>
+
+    </form>
+
+    <button class="btn btn-primary mb-3" (click)="openModalWithContent(content)" [disabled]="this.invoiceForm().invalid()">Agregar recurso</button>
+    @if (this.invoiceForm().invalid()) {
+      <p class="text-muted">Rellene los campos necesarios para agregar un recurso</p>
+    }
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Tipo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of itemsSignal(); track item) {
+          <tr>
+            <td>{{ ($index + 1) | numberPadZero }}</td>
+            <td>
+              {{ item.description }}
+            </td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price | currency }}</td>
+            <td>{{ item.type | itemType }}</td>
+            <td class="d-flex flex-row gap-2">
+              <button class="btn btn-danger" type="button" (click)="removeItem(item)">Eliminar</button>
+              <button class="btn btn-success" type="button" (click)="prepareEdit(item, content)">Editar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="d-flex flex-row">
+      <div class="col-5">
+        <label>Notas</label>
+        <textarea class="form-control" [formField]="invoiceForm.notes"></textarea>
+        @let notesField = invoiceForm.notes();
+          @if (notesField.touched() && notesField.invalid()) {
+            @for (error of notesField.errors(); track error) {
+              <span class="text-red">{{ error.message }}</span>
+            }
+          }
+      </div>
+      <div class="offset-2 col-5">
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <label >Subtotal:</label>
+            </td>
+            <td>
+              <span class="text-end d-table-cell">{{ subtotalSignal() | currency }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>Impuesto (%):</label>
+            </td>
+            <td>
+              <input type="number" class="form-control text-end d-table-cell" [formField]="percentagesForm.tax">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>Descuento (%):</label>
+            </td>
+            <td>
+              <input type="number" class="form-control text-end d-table-cell" [formField]="percentagesForm.discount">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>Total</label>
+            </td>
+            <td>
+              <span>{{ totalSignal() | currency}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      </div>
+    </div>
+
+  }
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+        <h1 class="modal-title fs-5" id="item_modalLabel">Guardar item</h1>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('close')"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+           <div class="mb-3">
+            <label class="form-label" for="description">Descripción</label>
+            <input type="text" id="description" class="form-control" [formField]="itemForm.description">
+            @let descriptionField = itemForm.description();
+            @if (descriptionField.touched() && descriptionField.invalid()) {
+              @for (error of descriptionField.errors(); track error) {
+                <span class="text-red">{{ error.message }}</span>
+              }
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="quantity">Cantidad</label>
+            <input type="number" id="quantity" class="form-control" [formField]="itemForm.quantity">
+            @let quantityField = itemForm.quantity();
+            @if (quantityField.touched() && quantityField.invalid()) {
+              @for (error of quantityField.errors(); track error) {
+                <span class="text-red">{{ error.message }}</span>
+              }
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="unit_price">Precio</label>
+            <input type="number" id="unit_price" class="form-control" [formField]="itemForm.unit_price">
+            @let unitPriceField = itemForm.unit_price();
+            @if (unitPriceField.touched() && unitPriceField.invalid()) {
+              @for (error of unitPriceField.errors(); track error) {
+                <span class="text-red">{{ error.message }}</span>
+              }
+            }
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" aria-label="Close" (click)="modal.dismiss('close')">Cancelar</button>
+        @if (selectedItem) {
+          <button type="button" [disabled]="itemForm().invalid()" class="btn btn-info" aria-label="Close" (click)="editItem(modal, selectedItem)">Actualizar</button>
+        } @else {
+          <button type="button" [disabled]="itemForm().invalid()" class="btn btn-primary" aria-label="Close" (click)="addItem(modal)">Guardar</button>
+        }
+      </div>
+</ng-template>
