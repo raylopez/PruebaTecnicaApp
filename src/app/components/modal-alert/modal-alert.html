@@ -1,1 +1,9 @@
-<p>modal-alert works!</p>
+<div class="modal-body">
+    <p>{{ message }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" aria-label="Close"
+      (click)="activeModal.dismiss('close')">Cerrar</button>
+    <button type="button" class="btn btn-primary" aria-label="Close"
+      (click)="activeModal.dismiss('okAction')">{{ okButtonText }}</button>
+  </div>
