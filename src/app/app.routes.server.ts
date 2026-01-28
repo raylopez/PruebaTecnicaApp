@@ -10,7 +10,7 @@ export const serverRoutes: ServerRoute[] = [
     async getPrerenderParams() {
       const companyService = inject(CompanyData);
       const ids = await firstValueFrom(companyService.getCompanies());
-      return ids.map(c => ({ id: c.id.toString() }));
+      return ids.map(c => ({ companyId: c.id.toString() }));
     },
   },
   {
