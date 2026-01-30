@@ -1,15 +1,12 @@
-import { Component, computed, inject, input, OnInit, signal, TemplateRef } from '@angular/core';
-import { CompanyData } from '../../services/company-data';
-import { Company as CompanyModel } from '../../models/company';
-import { Router } from "@angular/router";
-import { CreateInvoice, CreateInvoiceItem, CreateItem, createItemInital, ItemType } from '../../models/invoice';
-import { form, FormField, required, max, min, maxLength } from '@angular/forms/signals';
 import { CurrencyPipe, KeyValuePipe } from '@angular/common';
-import { ItemTypePipe } from '../../pipes/item-type-pipe';
-import { NumberPadZeroPipe } from '../../pipes/number-pad-zero-pipe';
+import { Component, computed, inject, input, signal, TemplateRef } from '@angular/core';
+import { form, FormField, max, maxLength, min, required } from '@angular/forms/signals';
+import { Router } from "@angular/router";
+import { ModalAlert } from '@components/modal-alert/modal-alert';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap/modal';
-import { InvoiceData } from '../../services/invoice-data';
-import { ModalAlert } from '../../components/modal-alert/modal-alert';
+import { ItemTypePipe, NumberPadZeroPipe } from '@pipes';
+import { CompanyData, InvoiceData } from '@services';
+import { Company, CreateInvoice, CreateInvoiceItem, CreateItem, createItemInital, ItemType } from '@models';
 
 const invoiceFormModel = signal<CreateInvoice>({
   client_id: '',
@@ -34,7 +31,7 @@ export class InvoiceGenerator {
   private readonly invoiceService = inject(InvoiceData);
   private readonly router = inject(Router);
 
-  public company = signal<CompanyModel|null>(null);
+  public company = signal<Company|null>(null);
   public itemsSignal = signal<CreateItem[]>([]);
   public itemModelSignal = signal<CreateItem>(createItemInital);
 

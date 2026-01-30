@@ -1,10 +1,8 @@
-import { Component, DOCUMENT, inject, input, OnInit, signal } from '@angular/core';
-import { CompanyData } from '../../services/company-data';
-import { Company as CompanyModel } from '../../models/company';
-import { Client } from '../../models/client';
-import { InvoiceData } from '../../services/invoice-data';
-import { NumberPadZeroPipe } from '../../pipes/number-pad-zero-pipe';
+import { Component, DOCUMENT, inject, input, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { NumberPadZeroPipe } from '@pipes';
+import { CompanyData, InvoiceData } from '@services';
+import { Client, Company } from '@models';
 
 @Component({
   selector: 'app-clients',
@@ -16,7 +14,7 @@ export class Clients {
   public readonly id = input<number>(0);
   private readonly companyService = inject(CompanyData);
   private readonly invoiceService = inject(InvoiceData);
-  public company = signal<CompanyModel | null>(null);
+  public company = signal<Company | null>(null);
   public clients = signal<Client[]>([]);
   public document = inject(DOCUMENT);
 

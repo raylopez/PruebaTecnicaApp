@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ItemType } from '../models/invoice';
+import { ItemType } from '@models';
 
 @Pipe({
   name: 'itemType',

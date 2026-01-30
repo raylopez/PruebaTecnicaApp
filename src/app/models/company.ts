@@ -1,5 +1,4 @@
-import { Client } from "../models/client";
-
+import { Client } from "./client";
 export interface Company {
   id: number;
   name: string;
